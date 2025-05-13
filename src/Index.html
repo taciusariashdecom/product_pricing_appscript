@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <base target="_top">
+    <style>
+      body { font-family: Arial, sans-serif; padding: 20px; }
+      input, button { margin: 10px 0; padding: 5px; }
+      table { border-collapse: collapse; width: 100%; }
+      th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+      th { background-color: #f2f2f2; }
+    </style>
+  </head>
+  <body>
+    <h2>Simulador de Precificação</h2>
+    <input type="text" id="sku" placeholder="SKU (ex: XXX-200-150)">
+    <input type="text" id="tag" placeholder="Tag (ex: auto-price:RO-VIN-MORM57,...)">
+    <button onclick="simularPreco()">Simular Preço</button>
+    <div id="resultado"></div>
+
+    <script>
+      function simularPreco() {
+        var sku = document.getElementById('sku').value;
+        var tag = document.getElementById('tag').value;
+        google.script.run.withSuccessHandler(mostrarResultado).simulatePricing(sku, tag);
+      }
+
+      function mostrarResultado(result) {
+        var html = '';
+        if (result.error) {
+          html = '<p style="color: red;">' + result.error + '</p>';
+        } else {
+          html = '<h3>Resultado da Simulação:</h3>' +
+                 '<table>' +
+                 '<tr><th>Propriedade</th><th>Valor</th></tr>' +
+                 '<tr><td>SKU</td><td>' + result.sku + '</td></tr>' +
+                 '<tr><td>Tag</td><td>' + result.tag + '</td></tr>' +
+                 '<tr><td>Comprimento (mm)</td><td>' + result.length + '</td></tr>' +
+                 '<tr><td>Altura (mm)</td><td>' + result.height + '</td></tr>' +
+                 '<tr><td>Área (m²)</td><td>' + result.area + '</td></tr>' +
+                 '<tr><td>Área Ajustada (m²)</td><td>' + result.areaAjustada + '</td></tr>' +
+                 '<tr><td>Preço da Peça</td><td>' + result.precoPeca + '</td></tr>' +
+                 '<tr><td>Preço DE da Peça</td><td>' + result.precoDePeca + '</td></tr>' +
+                 '</table>';
+
+          html += '<h3>Memória de Cálculo:</h3>' +
+                  '<table>' +
+                  '<tr><th>Linha</th><th>Tag</th><th>Largura</th><th>Altura</th><th>Área</th><th>Resultado</th></tr>';
+
+          result.filteringSteps.forEach(function(step) {
+            html += '<tr>' +
+                    '<td>' + step.row + '</td>' +
+                    '<td>' + (step.criteria.tag ? '✅' : '❌') + '</td>' +
+                    '<td>' + (step.criteria.largura ? '✅' : '❌') + '</td>' +
+                    '<td>' + (step.criteria.altura ? '✅' : '❌') + '</td>' +
+                    '<td>' + (step.criteria.area ? '✅' : '❌') + '</td>' +
+                    '<td>' + (step.passed ? 'Aprovado' : 'Rejeitado') + '</td>' +
+                    '</tr>';
+          });
+
+          html += '</table>';
+        }
+        document.getElementById('resultado').innerHTML = html;
+      }
+    </script>
+  </body>
+</html>
+

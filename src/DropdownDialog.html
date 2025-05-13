@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <base target="_top">
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        padding: 10px;
+      }
+      select {
+        width: 100%;
+        padding: 8px;
+      }
+      button {
+        margin-top: 10px;
+        padding: 8px 12px;
+      }
+    </style>
+  </head>
+  <body>
+    <h3>Selecione a opção desejada:</h3>
+    <select id="sheetSelect">
+    </select>
+    <br><br>
+    <button onclick="cancel()">Cancelar</button>
+    <button onclick="submitOption()">OK</button>
+
+    <script>
+      function onSuccess(options) {
+        var select = document.getElementById('sheetSelect');
+        options.forEach(function(option) {
+          var opt = document.createElement('option');
+          opt.value = option;
+          opt.innerHTML = option;
+          select.appendChild(opt);
+        });
+      }
+
+      // Recuperar as opções do Cache
+      google.script.run.withSuccessHandler(onSuccess).getAvailableOptions();
+
+      function submitOption() {
+        var selectedOption = document.getElementById('sheetSelect').value;
+        google.script.run.withSuccessHandler(function() {
+          google.script.host.close();
+        }).processSelectedOption(selectedOption);
+      }
+
+      function cancel() {
+        google.script.host.close();
+      }
+    </script>
+  </body>
+</html>
